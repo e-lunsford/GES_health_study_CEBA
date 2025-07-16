@@ -6,7 +6,7 @@ GES Community Health Study is available on the Study's website: https://www.gesh
   
 This study is a collaboration between the GES Community Health Study Community Council and the ENVIRONS team.  
   
-**Funding**
+**Funding**  
 The Globeville, Elyria, Swansea Community Health Study is funded by the Central 70 
 Settlement (Sierra Club et al. v. Chao, et al. (D. Colo. No. 17-1679)) (PI: Magzamen, Contract: CT 2022*3418) 
 managed by Colorado Department of Public Health and Environment.  
