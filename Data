@@ -1,1 +1,17 @@
+Data used in this analysis includes:
 
+Denver statistical neighborhoods - Obtained via data download      
+https://opendata-geospatialdenver.hub.arcgis.com/datasets/geospatialDenver::statistical-neighborhood/about
+
+EPA air quality data - Obtained via data download
+Variables: PM2.5, PM10, O3, SO2, NO2, and CO for 2017-2021           
+https://aqs.epa.gov/aqsweb/documents/data_api.html
+
+Global Burden of Disease Health Data - Obtained via data download
+Mortality: all-cause, all-cancer, respiratory disease, cardiovascular disease (CVD), chronic obstructive pulmonary disease (COPD), stroke
+Incidence: childhood asthma (ages 1-18 yr), hypertension, stroke, type 2 diabetes (T2DM)
+https://ghdx.healthdata.org/
+
+Colorado Department of Public Health and Environment: Center for Health and Environmental Data - Obtained via data request
+Incidence: low birthweight (Incidence of infants born weighing 5.5 pounds (2500 grams) or less), preterm birth (Incidence of infants born alive before 37 weeks of pregnancy are completed)
+https://cdphe.colorado.gov/center-for-health-and-environmental-data
