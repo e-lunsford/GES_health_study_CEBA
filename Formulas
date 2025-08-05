@@ -1,0 +1,26 @@
+Required formulas for analysis include
+
+
+Equation 1. Estimation of incidence rate per 1,000 live births for low birthweight and preterm birth.
+Incidence = Cases / Total * 1,000
+
+Equation 2. Cases of disease and mortality attribuable to air pollution exposure.
+Delta-Y = Population * Y0 * (1 - exp(-Beta * Delta-C))
+
+where Y0 is the 5-year average incidence or mortality rate, Delta-C is the difference in 5-year average air pollution concentration between neighborhood of interest and the least exposed neighborhood, Beta is the effect estimate per unit change derived from literature
+
+Equation 3. Beta effect estimates.
+Beta = ln(Effect estimate) / Delta-X
+
+where the effect estimate is derived from literature, and Delta-X denotes the per unit change
+
+Equation 4. Conversion calculations between micrograms per cubic meter (ug/m3) and parts per billion (ppb).
+Concentration (ug/m3) = Concentration (ppb) * Molecular Weight / Molecular Volume
+
+Equation 5. Molecular volume.
+Molecular volume (L) = 22.41 * T/273 * 1013/P
+
+Where T is absolute pressure in Kelvin, P is atmospheric pressure in hPa. For our calculations we assumed a constant temperature of 25 C (298 K) and pressure of 840 hPa
+
+Molecular weights (g/mol) by air pollutant.
+O3 = 48.00, NO2 = 46.01, SO2 = 64.07, CO = 28.01
