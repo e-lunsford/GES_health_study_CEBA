@@ -452,3 +452,5 @@ save(file = "Outputs/ges_acs2021.RData",
 
 write_csv(file = "Outputs/ges_acs2021.csv",
           x = ges_acs2021_v3)
+
+load(file = "Outputs/ges_acs2021.RData")

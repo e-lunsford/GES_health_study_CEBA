@@ -204,7 +204,7 @@ den_bbox <- st_bbox(den_tract_wgs84) + c(-0.005,-0.005,0.005,0.005)
 #################################################################################
 
 den_nbhd <- 
-  sf::st_read("Data/statistical_neighborhoods/statistical_neighborhood.shp") %>%
+  sf::st_read("Outputs/statistical_neighborhoods/statistical_neighborhood.shp") %>%
   st_make_valid() %>%
   select(-TYPOLOGY, -NOTES)
 
@@ -244,8 +244,7 @@ ggplot() +
           inherit.aes = F,
           fill = NA,
           colour = "red",
-          linewidth = 1.25) +
-  map_theme
+          linewidth = 1.25) 
 
 
 #################################################################################
