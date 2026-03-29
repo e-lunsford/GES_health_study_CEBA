@@ -1,13 +1,9 @@
 #-------------------------------------------------------------------------------
-# title: "03a PM2.5 Inverse Distance Weighting"  
+# title: "03f CO Inverse Distance Weighting"  
 # author: E Lunsford  
-<<<<<<< HEAD
-# date: 2025-08-04 
-=======
-# date: 2025-08-06 
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
+# date: 2025-08-07 
 #  
-# This code is to spatially model PM2.5 daily measurements over a 5 year period
+# This code is to spatially model NO2 daily measurements over a 5 year period
 # (2017 - 2021) to both the neighborhood level and census tract level.
 #
 # Method 1: IDW point estimate model to neighborhood centroid.
@@ -15,15 +11,10 @@
 # Method 3: IDW as a raster over Denver area with extraction to both neighborhood and census tract centroid
 #
 #
-<<<<<<< HEAD
-# Last Run: 08/04/2025 and code was in working order 
-=======
-# Last Run: 08/06/2025 and code was in working order 
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
+# Last Run: 08/07/2025 and code was in working order 
 # using R 4.5.1 and RStudio 2025.05.1+513 
 #
 #-------------------------------------------------------------------------------
-
 
 #################################################################################
 # Load Libraries.                                                               #
@@ -34,13 +25,8 @@ library(ggplot2)
 library(ggspatial)
 library(gstat)
 library(ggthemes)
-<<<<<<< HEAD
 library(keyring)
 library(knitr)
-library(leaflet)
-=======
-library(knitr)
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
 library(lubridate)
 library(purrr)
 library(RAQSAPI)
@@ -58,11 +44,7 @@ library(tigris)
 library(units)
 
 #################################################################################
-<<<<<<< HEAD
-# Load parameters of interest from "01_setting_area" file.                      #
-=======
 # Load parameters of interest from "01" file.
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
 #################################################################################
 
 # Years of interest
@@ -77,46 +59,33 @@ load(file = "Outputs/den_tract_wgs84.RData") ## CCoD census tracts
 load(file = "Outputs/den_nbhd_wgs84.RData") ## CCoD neighborhoods
 
 # Load combined census tract and nbhd sf
-<<<<<<< HEAD
-load(file = "den_tract_nbhd.RData") # Many-to-one 
-load(file = "den_tract_nbhd2.RData") # w/o DIA
-load(file = "den_ct_nbhd.RData") # One-to-one
-load(file = "den_ct_nbhd2.RData") #w/o DIA
-=======
 load(file = "Outputs/den_tract_nbhd.RData") # Many-to-one 
 load(file = "Outputs/den_tract_nbhd2.RData") # w/o DIA
 load(file = "Outputs/den_ct_nbhd.RData") # One-to-one
 load(file = "Outputs/den_ct_nbhd2.RData") #w/o DIA
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
 
 # Set bboxes
 metro_bbox <- st_bbox(metro_tract_wgs84) + c(-0.005,-0.005,0.005,0.005)
 den_bbox <- st_bbox(den_tract_wgs84) + c(-0.005,-0.005,0.005,0.005)
 
 #################################################################################
-<<<<<<< HEAD
-# Load EPA PM2.5 data from "02obtain_AQS_data" file.                            #
+# Load EPA carbon monoxide data from "02" file.
 #################################################################################
 
-load(file = "denver_pm25_2017_2021.RData") ## loads as "pm25_aqs2"
-=======
-# Load EPA PM2.5 data from "02" file.
-#################################################################################
-
-load(file = "Outputs/denver_pm25_2017_2021.RData") ## loads as "pm25_aqs2"
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
+load(file = "Outputs/denver_co_2017_2021.RData") # loads as co_aqs2
 
 # Rename for consistency
-den_pm25 <- pm25_aqs2
+den_co <- co_aqs2
 
 #################################################################################
 # Preview Data.                                                                 #
-## Use the glimpse function from dplyr to view data.                            #
+# Use the glimpse function from dplyr to view data.                             #
 ## Alternatively, use the skim function from the skimr package to see the       #
 ## distribution of data.                                                        #
 #################################################################################
 
-dplyr::glimpse(den_pm25)
+dplyr::glimpse(den_co)
+
 
 #################################################################################
 # Filter Data.                                                                  #
@@ -131,21 +100,21 @@ dplyr::glimpse(den_pm25)
 ## Note that for carbon monoxide, use the CO 8-hour 1971.                       #
 #################################################################################
 
-den_pm25 <- den_pm25 %>%
-  filter(pollutant_standard == "PM25 Annual 2012")
+den_co <- den_co %>%
+  filter(pollutant_standard == "CO 8-hour 1971")
 
 #################################################################################
 # Calculate summary statistics by county, site number, and year.                #
 #################################################################################
 
-sum_stats <- den_pm25 %>%
+sum_stats <- den_co %>%
   st_drop_geometry() %>%
   group_by(site_number) %>%
   summarize(count = n(),
-            min = min(pm25_ugm3),
-            max = max(pm25_ugm3),
-            average = mean(pm25_ugm3),
-            med = median(pm25_ugm3))
+            min = min(co_ppm),
+            max = max(co_ppm),
+            average = mean(co_ppm),
+            med = median(co_ppm))
 
 knitr::kable(sum_stats, digits = 2)
 
@@ -154,9 +123,9 @@ knitr::kable(sum_stats, digits = 2)
 #################################################################################
 
 ggplot() +
-  #geom_sf(data = metro_tract) +
-  geom_sf(data = den_tract_nbhd2, fill = "grey", col = "black") +
-  geom_sf(data = den_pm25, aes(col = pm25_ugm3))
+  geom_sf(data = metro_tract_wgs84) +
+  geom_sf(data = den_nbhd_wgs84, fill = "green", col = "black") +
+  geom_sf(data = den_co, aes(col = co_ppm))
 
 #################################################################################
 ## Grids, buffers, and points.                                                  #
@@ -165,13 +134,12 @@ ggplot() +
 
 # Create grid for metro area.
 metro_grid <- st_make_grid(metro_tract_wgs84)
-plot(metro_grid)
 
 # Create grid for CCoD.
 den_grid <- st_make_grid(den_tract_nbhd2)
 
 # Create 50 km buffer boundary box for monitor locations.
-pm_bb <- st_bbox(den_pm25 %>% 
+co_bb <- st_bbox(den_co %>% 
                    st_union() %>%
                    st_buffer(dist = 50000))
 
@@ -182,27 +150,14 @@ den_buffer <- st_buffer(den_grid, dist = 50000)
 ## Calculate the centroids.                                                     #
 #################################################################################
 
-<<<<<<< HEAD
-co_centroid <- sf::st_centroid(colorado_sf_wgs84)
-metro_centroid <- sf::st_centroid(metro_tract_wgs84)
-den_tract_centroid <- sf::st_centroid(den_tract_wgs84)
-den_nbhd_centroid <- sf::st_centroid(den_ct_nbhd)
-=======
 #co_centroid <- sf::st_centroid(colorado_sf_wgs84)
 metro_centroid <- sf::st_centroid(metro_tract_wgs84)
 den_tract_centroid <- sf::st_centroid(den_tract_wgs84)
 den_nbhd_centroid <- sf::st_centroid(den_nbhd_wgs84)
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
 
 den_ct_nbhd2_centroid <- sf::st_centroid(den_ct_nbhd2)
 
 # Check with plot.
-<<<<<<< HEAD
-plot(st_geometry(den_ct_nbhd2)) 
-plot(st_geometry(den_ct_nbhd2_centroid), col = "black", add = T)
-plot(st_geometry(den_buffer), add = T, border = "green")
-
-=======
 plot(st_geometry(den_tract_nbhd2))
 plot(st_geometry(den_ct_nbhd2)) 
 plot(st_geometry(den_ct_nbhd2_centroid), col = "black", add = T)
@@ -210,7 +165,6 @@ plot(st_geometry(den_ct_nbhd2_centroid), col = "black", add = T)
 
 plot(st_geometry(den_nbhd_wgs84))
 plot(st_geometry(den_nbhd_centroid), col = "black", add = T)
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
 
 #################################################################################
 # Start the IDW Process.                                                        #
@@ -222,99 +176,30 @@ plot(st_geometry(den_nbhd_centroid), col = "black", add = T)
 
 # 1. Create new sf object with points of neighborhood centroids. 
 ## Pull the x and y coordinates using sf::st_coordinates.
-<<<<<<< HEAD
-sf_nbhd_centroids <- den_ct_nbhd2_centroid %>%
-=======
 sf_nbhd_centroids <- den_nbhd_centroid %>%
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
   dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                 lat = sf::st_coordinates(.)[,2])
 
-# 2. Use IDW formula to predict concentrations at neighborhood centroids.
-pm25_nbhd_idw_idp2 <- idw(formula = pm25_ugm3 ~ 1,
-                          locations = den_pm25,
-                          newdata = sf_nbhd_centroids,
-                          idp = 2.0)
+# 2. Use IDW to predict concentrations (ppm) at neighborhood centroids.
+co_nbhd_idw_ppm <- idw(formula = co_ppm ~ 1,
+                       locations = den_co,
+                       newdata = sf_nbhd_centroids,
+                       idp = 2.0)
 
-predicted_values2 <- pm25_nbhd_idw_idp2$var1.pred
-observed_values2 <- den_pm25$pm25_ugm3
-
-predicted_observed_comparison2 <- data.frame(
-<<<<<<< HEAD
-  observed = observed_values2[1:177],
-  predicted = predicted_values2[1:177]
-=======
-  observed = observed_values2[1:78],
-  predicted = predicted_values2[1:78]
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
-)
-
-rmse2 <- sqrt(mean((predicted_observed_comparison2$observed -
-                      predicted_observed_comparison2$predicted)^2))
-print(paste("RMSE: ", rmse2))
-<<<<<<< HEAD
-# RMSE: 4.3019
-=======
-# RMSE: 5.195
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
-
-pm25_nbhd_idw_idp3 <- idw(formula = pm25_ugm3 ~ 1,
-                          locations = den_pm25,
-                          newdata = sf_nbhd_centroids,
-                          idp = 3.0)
-
-predicted_values3 <- pm25_nbhd_idw_idp3$var1.pred
-observed_values3 <- den_pm25$pm25_ugm3
-
-predicted_observed_comparison3 <- data.frame(
-<<<<<<< HEAD
-  observed = observed_values3[1:177],
-  predicted = predicted_values3[1:177]
-=======
-  observed = observed_values3[1:78],
-  predicted = predicted_values3[1:78]
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
-)
-
-rmse3 <- sqrt(mean((predicted_observed_comparison3$observed -
-                      predicted_observed_comparison3$predicted)^2))
-print(paste("RMSE: ", rmse3))
-<<<<<<< HEAD
-# RMSE: 4.2889
-=======
-# RMSE: 5.198
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
-
-# 3. Spatially join neighborhood names with IDW prediction values.
-IDW_PM25_nbhd_level <- sf_nbhd_centroids %>%
-  st_join(pm25_nbhd_idw_idp2) %>%
-  dplyr::rename(pm25_idp2_ugm3 = var1.pred) %>%
-  dplyr::select(-var1.var)
-
-IDW_PM25_nbhd_level <- IDW_PM25_nbhd_level %>%
-  sf::st_join(pm25_nbhd_idw_idp3) %>%
-  dplyr::rename(pm25_idp3_ugm3 = var1.pred) %>%
-  dplyr::select(-var1.var)
-
-<<<<<<< HEAD
-save(file = "IDW_PM25_nbhd_01_11_2025.RData", IDW_PM25_nbhd_level)
-
-# 4. Map it.
-ggplot() +
-  geom_sf(data = den_ct_nbhd2,
-=======
-save(file = "Outputs/IDW_PM25_nbhd_08_2025.RData", IDW_PM25_nbhd_level)
+# 3. Spatially join the neighborhood names with the IDW prediction values.
+IDW_co_nbhd_level_ppm <- sf_nbhd_centroids %>%
+  st_join(co_nbhd_idw_ppm) %>%
+  dplyr::rename(co_pred_ppm = var1.pred)
 
 # 4. Map it.
 ggplot() +
   geom_sf(data = den_nbhd_wgs84,
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
           inherit.aes = F,
           fill = NA,
           colour = "red",
           linewidth = 0.5) +
-  geom_point(data = IDW_PM25_nbhd_level,
-             mapping = aes(color = pm25_idp2_ugm3,
+  geom_point(data = IDW_co_nbhd_level_ppm,
+             mapping = aes(color = co_pred_ppm,
                            #size = 1.0,
                            geometry = geometry),
              stat = "sf_coordinates") +
@@ -326,57 +211,31 @@ ggplot() +
 #################################################################################
 
 # 1. Create new sf object with points of census tract centroids. 
-# Pull the x and y coordinates using sf::st_coordinates.
+## Pull the x and y coordinates using sf::st_coordinates.
 sf_census_tract_centroids <- den_tract_centroid %>%
   dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                 lat = sf::st_coordinates(.)[,2])
 
-# 2. Use the IDW formula to predict concentrations at the 
-## census tract centroids.
-pm25_census_tract_idw <- idw(formula = pm25_ugm3 ~ 1,
-                             locations = den_pm25,
-                             newdata = sf_census_tract_centroids,
-                             idp = 2.0)
+# 2. Use IDW to predict concentrations (ppm) at census tract centroids.
+co_census_tract_idw_ppm <- idw(formula = co_ppm ~ 1,
+                               locations = den_co,
+                               newdata = sf_census_tract_centroids,
+                               idp = 2.0)
 
-<<<<<<< HEAD
-=======
-predicted_values_ct2 <- pm25_census_tract_idw$var1.pred
-observed_values_ct2 <- den_pm25$pm25_ugm3
-
-predicted_observed_comparison_ct2 <- data.frame(
-  observed = observed_values_ct2[1:177],
-  predicted = predicted_values_ct2[1:177]
-)
-
-rmse_ct2 <- sqrt(mean((predicted_observed_comparison_ct2$observed -
-                      predicted_observed_comparison_ct2$predicted)^2))
-print(paste("RMSE: ", rmse3))
-# RMSE: 5.198
-
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
-# 3. Spatially join census tract data with IDW prediction values.
-IDW_PM25_census_tract_level <- sf_census_tract_centroids %>%
-  st_join(pm25_census_tract_idw) %>%
-  dplyr::rename(pm25_pred_ugm3 = var1.pred) %>%
-  dplyr::select(-var1.var)
-
-
-<<<<<<< HEAD
-save(file = "IDW_PM25_census_tract_01_11_2025.RData", 
-=======
-save(file = "Outputs/IDW_PM25_census_tract_08_2025.RData", 
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
-     x = IDW_PM25_census_tract_level)
+# 3. Spatially join census tract information with IDW prediction values.
+IDW_co_census_tract_level_ppm <- sf_census_tract_centroids %>%
+  st_join(co_census_tract_idw_ppm) %>%
+  dplyr::rename(co_pred_ppm = var1.pred)
 
 # 4. Map it.
 ggplot() +
-  geom_sf(data = den_tract_wgs84,
+  geom_sf(data = den_ct_nbhd,
           inherit.aes = F,
           fill = NA,
           colour = "red",
           linewidth = 0.5) +
-  geom_point(data = IDW_PM25_census_tract_level,
-             mapping = aes(color = pm25_pred_ugm3,
+  geom_point(data = IDW_co_census_tract_level_ppm,
+             mapping = aes(color = co_pred_ppm,
                            #size = 1.0,
                            geometry = geometry),
              stat = "sf_coordinates") +
@@ -388,13 +247,13 @@ ggplot() +
 #################################################################################
 
 #################################################################################
-## A. Prep data.                                                                #
+## A. Prep data                                                                 #
 ## The gstat package uses sp objects instead of sf objects.                     #
 ## Convert sf objects to sp objects.                                            #
 #################################################################################
 
 # A1. Convert sf object to Spatial Points Data Frame.
-den_pm25_sp <- as_Spatial(den_pm25)
+den_co_sp <- as_Spatial(den_co)
 
 # A2. Convert Metro Denver tracts to Spatial Polygons Data Frame.
 metro_tract_sp <- as_Spatial(metro_tract_wgs84)
@@ -412,12 +271,8 @@ den_tract_sp <- as_Spatial(den_ct_nbhd)
 # B1. Create grid for Denver metro.
 grdpts <- makegrid(metro_tract_sp)
 
-#plot(grdpts)
-
 # B2. Create spatial points.
 spgrd <- SpatialPoints(grdpts, proj4string = CRS(proj4string(metro_tract_sp)))
-
-#plot(spgrd)
 
 # B3. Create SpatialPixels.
 spgrdWithin <- SpatialPixels(spgrd[metro_tract_sp,])
@@ -430,87 +285,86 @@ spgrdWithin <- SpatialPixels(spgrd[metro_tract_sp,])
 
 # C1. Interpolate the grid cells using a power value of 2 (idp=2.0).
 ## IDW = function for inverse distance weighted interpolation. 
-## IDP = numeric; specify the inverse distance weighting power.
-pm25_idw <- gstat::idw(pm25_ugm3 ~ 1, 
-                       den_pm25_sp,
-                       newdata = spgrdWithin,
-                       idp=2.0)
+## Idp = numeric; specify the inverse distance weighting power.
+co_idw <- idw(formula = co_ppm ~ 1, 
+              locations = den_co_sp,
+              newdata = spgrdWithin,
+              idp = 2.0)
 
 # C2. Set IDW as raster.
-raster_pm_idw <- raster(pm25_idw)
+raster_co_idw <- raster(co_idw)
 
 # C3. Get raster values.
-val1 = as.numeric(c(minValue(raster_pm_idw):maxValue(raster_pm_idw)))
+val1 = as.numeric(c(minValue(raster_co_idw):maxValue(raster_co_idw)))
 
 # C4. Clip to CCoD.
 ## Crop function
-crop_raster_pm_idw <- crop(raster_pm_idw, den_tract_sp)
+crop_raster_co_idw <- crop(raster_co_idw, den_tract_sp)
 
 ## Mask function
-mask_raster_pm_idw <- mask(raster_pm_idw, den_tract_sp)
+mask_raster_co_idw <- mask(raster_co_idw, den_tract_sp)
 
 #################################################################################
 ## D. Mapping.                                                                  #
 #################################################################################
 
 # D1. Set cropped raster and masked raster as data frames for mapping.
-## Cropped
-crop_raster_pm_idw_df <- as.data.frame(crop_raster_pm_idw, xy=TRUE)
+## cropped
+crop_raster_co_idw_df <- as.data.frame(crop_raster_co_idw, xy=TRUE)
 
-## Masked
-mask_raster_pm_idw_df <- as.data.frame(mask_raster_pm_idw, xy = TRUE) %>%
+## masked
+mask_raster_co_idw_df <- as.data.frame(mask_raster_co_idw, xy = TRUE) %>%
   na.omit()
 
 # D2. Map IDW raster with CCoD census tracts.
-## Cropped
+## cropped
 ggplot() +
-  geom_raster(data = crop_raster_pm_idw_df,
+  geom_raster(data = crop_raster_co_idw_df,
               aes(x = x, y = y, fill = var1.pred)) +
   scale_fill_viridis_c()+
-  geom_sf(data = den_ct_nbhd2,
+  geom_sf(data = den_ct_nbhd,
           inherit.aes = F,
           fill = NA,
           colour = "red",
           linewidth = 1) 
 
-## Masked
+## masked
 ggplot() +
-  geom_raster(data = mask_raster_pm_idw_df,
+  geom_raster(data = mask_raster_co_idw_df,
               aes(x = x, y = y, fill = var1.pred)) +
   scale_fill_viridis_c()+
-  geom_sf(data = den_ct_nbhd2,
+  geom_sf(data = den_ct_nbhd,
           inherit.aes = F,
           fill = NA,
           colour = "red",
           linewidth = 1) 
 
 #################################################################################
-## E. Extraction.                                                               #
+## E. Extraction                                                                #
 # E1. Extract raster IDW to neighborhood centroids.                             #
 #################################################################################
 
-# E1 Step 1. Change sf neighborhood centroids.
-## (sf_nbhd_centroid to spatial points).
+# E1 Step 1. Change sf neighborhood centroids (sf_nbhd_centroid to spatial points).
 sp_nbhd_centroid <- as_Spatial(sf_nbhd_centroids)
 
 # E1 Step 2. Extract raster values from the pm IDW raster model.
-rasValue_nbhd <- terra::extract(raster_pm_idw, sp_nbhd_centroid)
+rasValue_nbhd <- terra::extract(raster_co_idw, sp_nbhd_centroid)
 
 # E1 Step 3. Combine raster values to Method 1.
-IDW_PM25_nbhd_centroids <- cbind(IDW_PM25_nbhd_level, rasValue_nbhd)
+IDW_co_nbhd_centroids <- cbind(IDW_co_nbhd_level_ppm, rasValue_nbhd)
 
-IDW_PM25_nbhd_centroids <- IDW_PM25_nbhd_centroids %>%
-  dplyr::rename(pm25_ras_ugm3 = rasValue_nbhd)
+IDW_co_nbhd_centroids <- IDW_co_nbhd_centroids %>%
+  dplyr::rename(co_ras_ppm = rasValue_nbhd)
 
 # E1 Step 4. Map it.
 ggplot() +
-  geom_sf(data = den_ct_nbhd2,
+  geom_sf(data = den_nbhd_wgs84,
           inherit.aes = F,
           fill = NA,
           colour = "red",
           linewidth = 0.5) +
-  geom_point(data = IDW_PM25_nbhd_centroids,
-             mapping = aes(color = pm25_ras_ugm3,
+  geom_point(data = IDW_co_nbhd_centroids,
+             mapping = aes(color = co_ras_ppm,
                            #size = 1.0,
                            geometry = geometry),
              stat = "sf_coordinates") +
@@ -521,49 +375,47 @@ ggplot() +
 # E2. Extract raster to census tract centroids.                                 #
 #################################################################################
 
-# E2 Step 1. Change sf census tract centroids (df_census_tracts) 
-## to spatial points.
+# E2 Step 1. Change sf census tract centroids (df_census_tracts) to spatial points.
 sp_den_tract_centroid <- as_Spatial(sf_census_tract_centroids)
 
-# E2 Step 2. Extract raster values from the pm IDW raster model.
-rasValue_census_tract <- terra::extract(raster_pm_idw, sp_den_tract_centroid)
+# E2 Step 2. Extract raster values from the IDW raster model.
+rasValue_census_tract <- terra::extract(raster_co_idw, sp_den_tract_centroid)
 
 # E2 Step 3. Combine raster values to Method 2.
-IDW_PM25_census_tract_centroids <- cbind(IDW_PM25_census_tract_level, 
-                                         rasValue_census_tract)
+IDW_co_census_tract_centroids <- cbind(IDW_co_census_tract_level_ppm, 
+                                       rasValue_census_tract)
 
-IDW_PM25_census_tract_centroids <- IDW_PM25_census_tract_centroids %>%
-  dplyr::rename(pm25_ras_ct_ugm3 = rasValue_census_tract)
+IDW_co_census_tract_centroids <- IDW_co_census_tract_centroids %>%
+  dplyr::rename(co_ras_ppm = rasValue_census_tract)
 
 # E2 Step 4. Map it.
 ggplot() +
-  geom_sf(data = den_tract_wgs84,
+  geom_sf(data = den_ct_nbhd,
           inherit.aes = F,
           fill = NA,
           colour = "red",
           linewidth = 0.5) +
-  geom_point(data = IDW_PM25_census_tract_centroids,
-             mapping = aes(color = pm25_ras_ct_ugm3,
+  geom_point(data = IDW_co_census_tract_centroids,
+             mapping = aes(color = co_ras_ppm,
                            #size = 1.0,
                            geometry = geometry),
              stat = "sf_coordinates") +
   scale_color_viridis_c(option = "C")
-
 
 #################################################################################
 # Finalize both IDW data sets for future consistency and usability.             #
 #################################################################################
 
 # Save both datasets.
-<<<<<<< HEAD
-save(file = "IDW_PM25_nbhd_centroids_01_11_2025.RData",
-     x = IDW_PM25_nbhd_centroids)
+save(file = "Outputs/IDW_CO_nbhd_centroids_08_2025.RData",
+     x = IDW_co_nbhd_centroids)
 
-save(file = "IDW_PM25_ct_centroids_01_11_2025.RData", 
-=======
-save(file = "Outputs/IDW_PM25_nbhd_centroids_08_2025.RData",
-     x = IDW_PM25_nbhd_centroids)
+save(file = "Outputs/IDW_CO_ct_centroids_08_2025.RData", 
+     x = IDW_co_census_tract_centroids)
 
-save(file = "Outputs/IDW_PM25_ct_centroids_08_2025.RData", 
->>>>>>> f51f78d51b92164d50be4c6c078574cf9b53ddf5
-     x = IDW_PM25_census_tract_centroids)
+
+
+
+
+
+
